@@ -100,12 +100,24 @@ public class ChatServer implements ServerSocketThreadListener, SocketThreadListe
         if(client.isAuthorized()) {
             sendToAllAuthorizedClients(Messages.getBroadcast("Server", client.getNick() + " disconnected."));
         }
+        updateUserList();
     }
 
     @Override
     public synchronized void onReadySocketThread(SocketThread socketThread, Socket socket) {
         putLog("Socket is ready.");
         clients.add(socketThread);
+        updateUserList();
+    }
+
+    private void updateUserList(){
+        String users = "";
+        for (int i = 0; i < clients.size(); i++) {
+            ChatSocketThread client = (ChatSocketThread)clients.get(i);
+            users += client.getNick() + Messages.DELIMITER;
+        }
+        users = users.trim();
+        sendToAllAuthorizedClients(Messages.getUsersList(users));
     }
 
     @Override
